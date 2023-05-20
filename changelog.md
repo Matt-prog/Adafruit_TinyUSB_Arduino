@@ -1,5 +1,9 @@
 # Adafruit TinyUSB Arduino Library Changelog
 
+## 1.6.1
+
+- Fix HFCLK disabling when USB was removed and SoftDevice was not present on nRF5x
+
 ## 1.6.0
 
 - Update TinyUSB to post 0.12.0 at commit https://github.com/hathach/tinyusb/commit/b4a0f0b273eee32ead7acbd44ca9554c58a2adfa

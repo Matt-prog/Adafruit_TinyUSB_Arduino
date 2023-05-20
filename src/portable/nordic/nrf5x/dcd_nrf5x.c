@@ -2,6 +2,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 Ha Thach (tinyusb.org)
+ * Copyright (c) 2023 Matej Fitoš
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +35,7 @@
 #include "nrf_power.h"
 #include "nrfx_usbd_errata.h"
 #include "device/dcd.h"
+#include "dcd_nrf5x_cb.h"
 
 // TODO remove later
 #include "device/usbd.h"
@@ -233,6 +235,14 @@ static void xact_in_dma(uint8_t epnum)
 void dcd_init (uint8_t rhport)
 {
   TU_LOG1("dcd init\r\n");
+  
+#ifndef SOFTDEVICE_PRESENT
+  if(NRF_POWER->USBREGSTATUS & POWER_USBREGSTATUS_VBUSDETECT_Msk){
+    //Bootloader already initialized USB
+    dcd_enable_hfclk(); //Just reserving HFCLK
+  }
+#endif
+
   (void) rhport;
 }
 
@@ -920,8 +930,7 @@ static void hfclk_enable(void)
   }
 #endif
 
-  nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_HFCLKSTARTED);
-  nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_HFCLKSTART);
+  dcd_enable_hfclk();
 #endif
 }
 
@@ -940,7 +949,7 @@ static void hfclk_disable(void)
   }
 #endif
 
-  nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_HFCLKSTOP);
+  dcd_disable_hfclk();
 #endif
 }
 
